@@ -9,6 +9,7 @@ const copy = {
     hint: '拖拽地球，点击地图标记或案例卡片切换视角。',
     statsLabel: '数据概览',
     languageLabel: '语言',
+    shown: '当前显示',
     english: 'English',
     chinese: '中文',
     allRegions: '全部地区',
@@ -28,6 +29,7 @@ const copy = {
     hint: 'Drag the globe, then select a map marker or case card to shift the view.',
     statsLabel: 'Data Snapshot',
     languageLabel: 'Language',
+    shown: 'Showing',
     english: 'English',
     chinese: '中文',
     allRegions: 'All regions',
@@ -37,6 +39,90 @@ const copy = {
     mapLoading: 'Loading map data',
     mapFallback: 'Basemap unavailable; case points remain browsable',
   },
+}
+
+const storyTypeLabels = {
+  concrete: { zh: '具体案例', en: 'Named case' },
+  pattern: { zh: '实践类型', en: 'Practice pattern' },
+}
+
+const criticalLensLabels = {
+  zh: {
+    antiViolence: '可追问：当舞蹈成为抗议工具时，谁能被看见，谁仍被迫承担创伤叙事？',
+    community: '可追问：社区舞蹈如何在赋权与机构化之间保持张力，而不被简化成“疗愈”标签？',
+    decolonial: '可追问：去殖民身体知识如何避免被全球当代舞市场重新包装为异域风格？',
+    gaze: '可追问：反凝视并不只是拒绝美感，也是在重写谁拥有观看和解释身体的权力。',
+    indigenous: '可追问：土地、谱系和主权不是背景素材，而是这些实践的知识结构。',
+    publicSpace: '可追问：公共空间中的身体可见性同时受到性别、阶级、宗教和国家权力的限制。',
+    digital: '可追问：平台扩散带来可见性，也带来署名、收益和算法规训的新不平等。',
+    labor: '可追问：表演中的女性身体既是艺术媒介，也是劳动、风险和收入结构的一部分。',
+    popular: '可追问：流行舞和粉丝二创既可能打开能动性，也可能复制产业中的性别消费逻辑。',
+    disability: '可追问：残障身体美学挑战的是“正常身体”的默认标准，而不只是扩大代表性。',
+    migration: '可追问：迁徙叙事不能只被读成身份故事，也要读出边界、语言和制度压力。',
+    ritual: '可追问：仪式舞蹈中的女性劳动常常不在舞台中心，却维系着动作的社会生命。',
+    classic: '可追问：重构经典并不只是换故事背景，而是改变身体、阶级和欲望的叙事位置。',
+  },
+  en: {
+    antiViolence: 'Ask: when dance becomes protest, who becomes visible, and who is still asked to carry trauma in public?',
+    community: 'Ask: how can community dance hold tension between empowerment and institutional capture, instead of becoming a simple healing label?',
+    decolonial: 'Ask: how can decolonial body knowledge avoid being repackaged by the global contemporary dance market as exotic style?',
+    gaze: 'Ask: anti-gaze work is not only a refusal of beauty; it rewrites who gets to look at and interpret the body.',
+    indigenous: 'Ask: land, genealogy, and sovereignty are not backdrops here; they are knowledge structures inside the practice.',
+    publicSpace: 'Ask: bodily visibility in public space is shaped at once by gender, class, religion, and state power.',
+    digital: 'Ask: platform circulation creates visibility, but also new inequalities in credit, revenue, and algorithmic discipline.',
+    labor: 'Ask: women performers are not only artistic figures; they are workers inside structures of risk, income, and respectability.',
+    popular: 'Ask: popular dance and fan remix can open agency while also reproducing gendered consumption in entertainment industries.',
+    disability: 'Ask: disability aesthetics challenges the default idea of the normal body, not only the lack of representation.',
+    migration: 'Ask: migration in dance is not only identity story; it also carries borders, language, and institutional pressure.',
+    ritual: 'Ask: women\'s labor in ritual dance may sit outside the stage center while sustaining the social life of movement.',
+    classic: 'Ask: reworking a classic is not just changing the setting; it shifts the narrative place of body, class, and desire.',
+  },
+}
+
+const practicePatternIds = new Set([
+  'yunnan',
+  'istanbul',
+  'delhi',
+  'tokyo',
+  'cairo',
+  'lagos',
+  'rio',
+  'seattle',
+  'paris',
+  'fogo-sagrado',
+  'tehran-dance-resistance',
+  'zaouli-women',
+  'aboriginal-dance-theatre',
+])
+
+const storyLensKeys = {
+  santiago: 'antiViolence',
+  brooklyn: 'community',
+  toubab: 'decolonial',
+  brussels: 'gaze',
+  auckland: 'indigenous',
+  yunnan: 'community',
+  istanbul: 'publicSpace',
+  delhi: 'publicSpace',
+  tokyo: 'popular',
+  cairo: 'labor',
+  lagos: 'digital',
+  rio: 'gaze',
+  seattle: 'community',
+  paris: 'migration',
+  'one-billion-rising': 'antiViolence',
+  'dancing-while-black': 'community',
+  chandralekha: 'classic',
+  nrityagram: 'community',
+  'sins-invalid': 'disability',
+  'dancing-earth': 'indigenous',
+  'danza-organica': 'decolonial',
+  'mujeres-creando': 'publicSpace',
+  'fogo-sagrado': 'digital',
+  'akram-khan-giselle': 'classic',
+  'tehran-dance-resistance': 'publicSpace',
+  'zaouli-women': 'ritual',
+  'aboriginal-dance-theatre': 'indigenous',
 }
 
 const stories = [
@@ -264,6 +350,214 @@ const stories = [
     },
     tags: { zh: ['迁徙', '身份', '当代舞'], en: ['Migration', 'Identity', 'Contemporary dance'] },
   },
+  {
+    id: 'one-billion-rising',
+    coordinates: [121.5654, 25.033],
+    region: 'asia',
+    continent: { zh: '亚洲/全球', en: 'Asia/Global' },
+    color: '#e63946',
+    year: '2012-',
+    theme: { zh: '全球反暴力行动', en: 'Global anti-violence action' },
+    title: { zh: 'One Billion Rising 的全球共舞', en: 'One Billion Rising as global dance action' },
+    subtitle: { zh: '菲律宾、台湾与全球城市', en: 'Philippines, Taiwan, and global cities' },
+    body: {
+      zh: '每年以快闪、集体编舞和公共聚集回应性别暴力，把“起身跳舞”转化为跨城市的抗议语法。',
+      en: 'Flash mobs, shared choreography, and public gatherings turn rising and dancing into a translocal protest grammar against gender violence.',
+    },
+    tags: { zh: ['快闪', '跨国行动', '反性别暴力'], en: ['Flash mob', 'Transnational action', 'Gender violence'] },
+  },
+  {
+    id: 'dancing-while-black',
+    coordinates: [-74.006, 40.7128],
+    region: 'north-america',
+    continent: { zh: '北美', en: 'North America' },
+    color: '#111827',
+    year: '2012-',
+    theme: { zh: '黑人舞蹈自我定义', en: 'Black dance self-definition' },
+    title: { zh: 'Dancing While Black', en: 'Dancing While Black' },
+    subtitle: { zh: '美国，纽约', en: 'New York, United States' },
+    body: {
+      zh: 'Paloma McGregor 发起的平台支持黑人舞蹈艺术家发展作品、对话和档案，让身体语言由社群自身命名。',
+      en: 'Paloma McGregor\'s platform supports Black dance artists through development, dialogue, and documentation, letting communities name their own movement languages.',
+    },
+    tags: { zh: ['黑人艺术家', '档案', '自我定义'], en: ['Black artists', 'Archive', 'Self-definition'] },
+  },
+  {
+    id: 'chandralekha',
+    coordinates: [80.2707, 13.0827],
+    region: 'asia',
+    continent: { zh: '亚洲', en: 'Asia' },
+    color: '#9b5de5',
+    year: '1980s-2000s',
+    theme: { zh: '古典舞的女性主义重构', en: 'Feminist reworking of classical dance' },
+    title: { zh: 'Chandralekha 的身体抵抗', en: 'Chandralekha and embodied resistance' },
+    subtitle: { zh: '印度，钦奈', en: 'Chennai, India' },
+    body: {
+      zh: '她把 Bharatanatyam、瑜伽和武术重新组合，抵抗古典舞中被规训的女性身体和民族主义叙事。',
+      en: 'Her work recombined Bharatanatyam, yoga, and martial forms to resist disciplined femininity and nationalist scripts in classical dance.',
+    },
+    tags: { zh: ['古典舞重构', '身体抵抗', '印度现代舞'], en: ['Classical reworking', 'Body resistance', 'Indian modern dance'] },
+  },
+  {
+    id: 'nrityagram',
+    coordinates: [77.5946, 12.9716],
+    region: 'asia',
+    continent: { zh: '亚洲', en: 'Asia' },
+    color: '#f77f00',
+    year: '1990-',
+    theme: { zh: '女性主导的舞蹈共同体', en: 'Women-led dance community' },
+    title: { zh: 'Nrityagram 舞蹈村', en: 'Nrityagram Dance Village' },
+    subtitle: { zh: '印度，班加罗尔近郊', en: 'Near Bengaluru, India' },
+    body: {
+      zh: 'Protima Gauri 创立的舞蹈村把训练、生活和表演放在同一处空间，让女性主导的传承成为日常制度。',
+      en: 'Founded by Protima Gauri, the dance village joins training, living, and performance, turning women-led transmission into an everyday institution.',
+    },
+    tags: { zh: ['Odissi', '共同体', '传承'], en: ['Odissi', 'Community', 'Transmission'] },
+  },
+  {
+    id: 'sins-invalid',
+    coordinates: [-122.4194, 37.7749],
+    region: 'north-america',
+    continent: { zh: '北美', en: 'North America' },
+    color: '#06aed5',
+    year: '2006-',
+    theme: { zh: '残障正义与身体美学', en: 'Disability justice and body aesthetics' },
+    title: { zh: 'Sins Invalid 的残障身体表演', en: 'Sins Invalid and disabled embodiment' },
+    subtitle: { zh: '美国，旧金山湾区', en: 'San Francisco Bay Area, United States' },
+    body: {
+      zh: '以残障、酷儿、有色人种经验为中心的表演项目，把美、欲望和行动能力从健全主义框架中夺回。',
+      en: 'This performance project centers disabled, queer, and BIPOC experience, reclaiming beauty, desire, and agency from ableist frames.',
+    },
+    tags: { zh: ['残障正义', '酷儿身体', '表演'], en: ['Disability justice', 'Queer embodiment', 'Performance'] },
+  },
+  {
+    id: 'dancing-earth',
+    coordinates: [-105.9378, 35.687],
+    region: 'north-america',
+    continent: { zh: '北美', en: 'North America' },
+    color: '#2a9d8f',
+    year: '2004-',
+    theme: { zh: '原住民生态舞蹈', en: 'Indigenous ecological dance' },
+    title: { zh: 'Dancing Earth Indigenous Contemporary Dance Creations', en: 'Dancing Earth Indigenous Contemporary Dance Creations' },
+    subtitle: { zh: '美国，新墨西哥州圣菲', en: 'Santa Fe, United States' },
+    body: {
+      zh: 'Rulan Tangen 创立的舞团把原住民生态知识、仪式和当代舞连接起来，强调土地关系与身体韧性。',
+      en: 'Founded by Rulan Tangen, the company connects Indigenous ecological knowledge, ceremony, and contemporary dance around land relations and embodied resilience.',
+    },
+    tags: { zh: ['原住民', '生态知识', '当代舞'], en: ['Indigenous', 'Ecological knowledge', 'Contemporary dance'] },
+  },
+  {
+    id: 'danza-organica',
+    coordinates: [-71.0589, 42.3601],
+    region: 'north-america',
+    continent: { zh: '北美/加勒比', en: 'North America/Caribbean' },
+    color: '#118ab2',
+    year: '2007-',
+    theme: { zh: '去殖民与社会正义舞蹈', en: 'Decolonial and social justice dance' },
+    title: { zh: 'Danza Organica', en: 'Danza Organica' },
+    subtitle: { zh: '美国波士顿与波多黎各', en: 'Boston and Puerto Rico' },
+    body: {
+      zh: 'Mar Parrilla 的舞蹈剧场实践连接波多黎各、离散经验和社会正义，把编舞变成集体疗愈与组织方法。',
+      en: 'Mar Parrilla\'s dance theater links Puerto Rico, diaspora, and social justice, making choreography a method of collective healing and organizing.',
+    },
+    tags: { zh: ['去殖民', '离散', '社会正义'], en: ['Decolonial', 'Diaspora', 'Social justice'] },
+  },
+  {
+    id: 'mujeres-creando',
+    coordinates: [-68.1193, -16.4897],
+    region: 'latin-america',
+    continent: { zh: '拉丁美洲', en: 'Latin America' },
+    color: '#d00000',
+    year: '1992-',
+    theme: { zh: '街头表演与女性主义行动', en: 'Street performance and feminist action' },
+    title: { zh: 'Mujeres Creando 的街头行动', en: 'Mujeres Creando street actions' },
+    subtitle: { zh: '玻利维亚，拉巴斯', en: 'La Paz, Bolivia' },
+    body: {
+      zh: '这个无政府女性主义集体用涂鸦、街头剧场和身体介入挑战父权、贫困与殖民性权力结构。',
+      en: 'The anarcho-feminist collective uses graffiti, street theater, and embodied intervention against patriarchy, poverty, and colonial power.',
+    },
+    tags: { zh: ['街头剧场', '无政府女性主义', '城市介入'], en: ['Street theater', 'Anarcha-feminism', 'Urban intervention'] },
+  },
+  {
+    id: 'fogo-sagrado',
+    coordinates: [-46.6333, -23.5505],
+    region: 'latin-america',
+    continent: { zh: '拉丁美洲', en: 'Latin America' },
+    color: '#ff006e',
+    year: '当代',
+    theme: { zh: '女性街舞与城市归属', en: 'Women in street dance and urban belonging' },
+    title: { zh: '巴西女性街舞圈的城市占位', en: 'Brazilian women in street dance spaces' },
+    subtitle: { zh: '巴西，圣保罗', en: 'Sao Paulo, Brazil' },
+    body: {
+      zh: '在 breaking、passinho 与 funk 舞蹈场景中，女性通过 battle、教学和影像传播争取署名、空间和安全。',
+      en: 'Across breaking, passinho, and funk scenes, women use battles, teaching, and video circulation to claim credit, space, and safety.',
+    },
+    tags: { zh: ['街舞', '署名权', '城市青年文化'], en: ['Street dance', 'Credit', 'Urban youth culture'] },
+  },
+  {
+    id: 'akram-khan-giselle',
+    coordinates: [-0.1276, 51.5072],
+    region: 'europe',
+    continent: { zh: '欧洲', en: 'Europe' },
+    color: '#7209b7',
+    year: '2016',
+    theme: { zh: '经典芭蕾的阶级与性别重读', en: 'Class and gender rereading of ballet' },
+    title: { zh: 'English National Ballet 的 Giselle 重构', en: 'English National Ballet\'s reworked Giselle' },
+    subtitle: { zh: '英国，伦敦', en: 'London, United Kingdom' },
+    body: {
+      zh: 'Tamara Rojo 任艺术总监时期委约的版本把女工、边界和剥削置入经典故事，改变了芭蕾中的女性受害叙事。',
+      en: 'Commissioned under Tamara Rojo, this version places women workers, borders, and exploitation inside the classic story, shifting ballet\'s victimhood script.',
+    },
+    tags: { zh: ['芭蕾重构', '女工', '阶级'], en: ['Ballet reworking', 'Women workers', 'Class'] },
+  },
+  {
+    id: 'tehran-dance-resistance',
+    coordinates: [51.389, 35.6892],
+    region: 'asia',
+    continent: { zh: '亚洲/西亚', en: 'Asia/West Asia' },
+    color: '#f72585',
+    year: '2020s',
+    theme: { zh: '禁令下的身体可见性', en: 'Bodily visibility under restriction' },
+    title: { zh: '伊朗女性的数字舞蹈抵抗', en: 'Iranian women and digital dance resistance' },
+    subtitle: { zh: '伊朗，德黑兰', en: 'Tehran, Iran' },
+    body: {
+      zh: '在街头、屋顶与社交媒体之间，短舞蹈片段把被限制的女性身体转化为可传播的公共声明。',
+      en: 'Between streets, rooftops, and social media, short dance videos turn restricted women\'s bodies into circulating public statements.',
+    },
+    tags: { zh: ['数字抵抗', '身体可见性', '公共声明'], en: ['Digital resistance', 'Bodily visibility', 'Public statement'] },
+  },
+  {
+    id: 'zaouli-women',
+    coordinates: [-5.5471, 7.54],
+    region: 'africa',
+    continent: { zh: '非洲', en: 'Africa' },
+    color: '#fb8500',
+    year: '持续实践',
+    theme: { zh: '仪式舞蹈中的女性劳动', en: 'Women\'s labor in ritual dance' },
+    title: { zh: '西非仪式舞蹈中的女性组织角色', en: 'Women\'s organizing roles in West African ritual dance' },
+    subtitle: { zh: '科特迪瓦与西非社群', en: 'Cote d\'Ivoire and West African communities' },
+    body: {
+      zh: '即使某些面具舞由男性表演，女性在歌唱、节奏、服饰和仪式组织中仍维系着舞蹈的社会生命。',
+      en: 'Even where some masked dances are performed by men, women sustain the dance\'s social life through song, rhythm, dress, and ritual organization.',
+    },
+    tags: { zh: ['仪式', '女性劳动', '社群记忆'], en: ['Ritual', 'Women\'s labor', 'Community memory'] },
+  },
+  {
+    id: 'aboriginal-dance-theatre',
+    coordinates: [151.2093, -33.8688],
+    region: 'oceania',
+    continent: { zh: '大洋洲', en: 'Oceania' },
+    color: '#0081a7',
+    year: '1970s-',
+    theme: { zh: '原住民舞蹈训练与主权', en: 'Indigenous dance training and sovereignty' },
+    title: { zh: '澳大利亚原住民女性舞者与舞蹈训练', en: 'Aboriginal women dancers and dance training in Australia' },
+    subtitle: { zh: '澳大利亚，悉尼', en: 'Sydney, Australia' },
+    body: {
+      zh: '从社区训练到当代舞台，原住民女性舞者把身体、土地和主权叙事带入国家文化机构。',
+      en: 'From community training to contemporary stages, Aboriginal women dancers bring body, Country, and sovereignty into national cultural institutions.',
+    },
+    tags: { zh: ['原住民主权', '训练', '土地关系'], en: ['Indigenous sovereignty', 'Training', 'Country'] },
+  },
 ]
 
 const regionOrder = ['all', 'asia', 'africa', 'europe', 'latin-america', 'north-america', 'oceania']
@@ -324,6 +618,7 @@ app.innerHTML = `
       <p class="focus-theme"></p>
       <p class="focus-subtitle"></p>
       <p class="focus-body"></p>
+      <p class="focus-critical"></p>
       <div class="focus-tags"></div>
     </section>
   </main>
@@ -342,6 +637,7 @@ const focusTheme = app.querySelector('.focus-theme')
 const focusSubtitle = app.querySelector('.focus-subtitle')
 const focusBody = app.querySelector('.focus-body')
 const focusTags = app.querySelector('.focus-tags')
+const focusCritical = app.querySelector('.focus-critical')
 const mapStatus = app.querySelector('.map-status')
 const langButtons = Array.from(app.querySelectorAll('.lang-button'))
 
@@ -372,6 +668,18 @@ function activeStory() {
 
 function uniqueThemes() {
   return new Set(stories.map((story) => story.theme[state.lang])).size
+}
+
+function storyKind(story) {
+  return practicePatternIds.has(story.id) ? 'pattern' : 'concrete'
+}
+
+function criticalLens(story) {
+  return criticalLensLabels[state.lang][storyLensKeys[story.id] ?? 'publicSpace']
+}
+
+function regionCount(region) {
+  return region === 'all' ? stories.length : stories.filter((story) => story.region === region).length
 }
 
 function updateText() {
@@ -407,7 +715,12 @@ function renderRegionFilters() {
   regionFilters.innerHTML = regionOrder
     .map((region) => {
       const isActive = region === state.activeRegion
-      return `<button class="filter-button${isActive ? ' is-active' : ''}" type="button" data-region="${region}">${regionLabels[region][state.lang]}</button>`
+      return `
+        <button class="filter-button${isActive ? ' is-active' : ''}" type="button" data-region="${region}">
+          <span>${regionLabels[region][state.lang]}</span>
+          <strong>${regionCount(region)}</strong>
+        </button>
+      `
     })
     .join('')
 
@@ -426,21 +739,33 @@ function renderRegionFilters() {
 }
 
 function renderStoryList() {
+  const locale = copy[state.lang]
   storyItems.innerHTML = filteredStories()
     .map((story) => {
       const isActive = story.id === state.activeStoryId
+      const typeLabel = storyTypeLabels[storyKind(story)][state.lang]
       return `
         <button class="story-item${isActive ? ' is-active' : ''}" type="button" data-story-id="${story.id}">
           <span class="story-dot" style="--story-color:${story.color}"></span>
           <span class="story-copy">
             <strong>${story.title[state.lang]}</strong>
             <span>${story.subtitle[state.lang]}</span>
+            <span class="story-meta">
+              <span>${story.year}</span>
+              <span>${story.theme[state.lang]}</span>
+              <span>${typeLabel}</span>
+            </span>
           </span>
           <span class="story-region">${story.continent[state.lang]}</span>
         </button>
       `
     })
     .join('')
+
+  storyItems.insertAdjacentHTML(
+    'afterbegin',
+    `<div class="story-count">${locale.shown} <strong>${filteredStories().length}</strong> / ${stories.length}</div>`,
+  )
 
   storyItems.querySelectorAll('.story-item').forEach((button) => {
     button.addEventListener('click', () => {
@@ -455,12 +780,14 @@ function renderStoryList() {
 
 function renderFocusCard() {
   const story = activeStory()
+  const typeLabel = storyTypeLabels[storyKind(story)][state.lang]
   focusContinent.textContent = story.continent[state.lang]
   focusYear.textContent = story.year
   focusTitle.textContent = story.title[state.lang]
-  focusTheme.textContent = story.theme[state.lang]
+  focusTheme.innerHTML = `<span>${story.theme[state.lang]}</span><span>${typeLabel}</span>`
   focusSubtitle.textContent = story.subtitle[state.lang]
   focusBody.textContent = story.body[state.lang]
+  focusCritical.textContent = criticalLens(story)
   focusTags.innerHTML = story.tags[state.lang].map((tag) => `<span class="focus-tag">${tag}</span>`).join('')
 }
 
