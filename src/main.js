@@ -10,6 +10,13 @@ const copy = {
     statsLabel: '数据概览',
     languageLabel: '语言',
     shown: '当前显示',
+    searchPlaceholder: '搜索案例、地点、主题',
+    noResults: '没有匹配案例，试试更宽泛的关键词。',
+    typeAll: '全部类型',
+    sourceLabel: '来源状态',
+    sourceLink: '查看来源',
+    sourceNamed: '有明确组织、作品或机构线索，可继续补充更多一手材料。',
+    sourcePattern: '综合型实践入口：适合引出问题，但后续应拆成更具体的样本。',
     english: 'English',
     chinese: '中文',
     allRegions: '全部地区',
@@ -30,6 +37,13 @@ const copy = {
     statsLabel: 'Data Snapshot',
     languageLabel: 'Language',
     shown: 'Showing',
+    searchPlaceholder: 'Search case, place, theme',
+    noResults: 'No matching cases. Try a broader keyword.',
+    typeAll: 'All types',
+    sourceLabel: 'Source status',
+    sourceLink: 'View source',
+    sourceNamed: 'Named organization, work, or institutional cue; more primary material can be added.',
+    sourcePattern: 'Interpretive practice pattern: useful as a problem entry, but should later be split into specific samples.',
     english: 'English',
     chinese: '中文',
     allRegions: 'All regions',
@@ -45,6 +59,8 @@ const storyTypeLabels = {
   concrete: { zh: '具体案例', en: 'Named case' },
   pattern: { zh: '实践类型', en: 'Practice pattern' },
 }
+
+const typeOrder = ['all', 'concrete', 'pattern']
 
 const criticalLensLabels = {
   zh: {
@@ -123,6 +139,20 @@ const storyLensKeys = {
   'tehran-dance-resistance': 'publicSpace',
   'zaouli-women': 'ritual',
   'aboriginal-dance-theatre': 'indigenous',
+}
+
+const sourceLinks = {
+  santiago: 'https://designmuseum.org/exhibitions/beazley-designs-of-the-year/digital/a-rapist-in-your-way-un-violador-en-tu-camino',
+  brooklyn: 'https://urbanbushwomen.org/about-ubw',
+  toubab: 'https://ecoledessables.org/en/',
+  brussels: 'https://www.rosas.be/en/productions/378-rosas-danst-rosas',
+  'one-billion-rising': 'https://www.onebillionrising.org/about/campaign/one-billion-rising/',
+  'dancing-while-black': 'https://movementresearch.org/people/dancing-while-black/',
+  chandralekha: 'https://www.sharjahart.org/en/sharjah-biennial/sb-16/people/details/chandralekha/',
+  nrityagram: 'https://nrityagram.org/protima/',
+  'sins-invalid': 'https://sinsinvalid.org/about-sins/',
+  'dancing-earth': 'https://www.dancingearth.org/',
+  'danza-organica': 'https://www.danzaorganica.org/the-company.php',
 }
 
 const stories = [
@@ -590,6 +620,11 @@ app.innerHTML = `
       <aside class="story-list panel">
         <div class="story-list-head">
           <span class="story-list-label" data-copy="panelTitle"></span>
+          <label class="search-field">
+            <span class="search-icon" aria-hidden="true"></span>
+            <input class="story-search" type="search" autocomplete="off" />
+          </label>
+          <div class="type-filters"></div>
           <div class="region-filters"></div>
         </div>
         <div class="story-items"></div>
@@ -619,6 +654,7 @@ app.innerHTML = `
       <p class="focus-subtitle"></p>
       <p class="focus-body"></p>
       <p class="focus-critical"></p>
+      <div class="focus-source"></div>
       <div class="focus-tags"></div>
     </section>
   </main>
@@ -628,7 +664,9 @@ const canvas = app.querySelector('.globe-canvas')
 const context = canvas.getContext('2d')
 const summaryGrid = app.querySelector('.summary-grid')
 const regionFilters = app.querySelector('.region-filters')
+const typeFilters = app.querySelector('.type-filters')
 const storyItems = app.querySelector('.story-items')
+const storySearch = app.querySelector('.story-search')
 const markerLayer = app.querySelector('.marker-layer')
 const focusContinent = app.querySelector('.focus-continent')
 const focusYear = app.querySelector('.focus-year')
@@ -638,6 +676,7 @@ const focusSubtitle = app.querySelector('.focus-subtitle')
 const focusBody = app.querySelector('.focus-body')
 const focusTags = app.querySelector('.focus-tags')
 const focusCritical = app.querySelector('.focus-critical')
+const focusSource = app.querySelector('.focus-source')
 const mapStatus = app.querySelector('.map-status')
 const langButtons = Array.from(app.querySelectorAll('.lang-button'))
 
@@ -645,6 +684,8 @@ const state = {
   lang: 'zh',
   activeStoryId: stories[0].id,
   activeRegion: 'all',
+  activeType: 'all',
+  query: '',
   rotation: [18, -16, 0],
   dragging: false,
   mapReady: false,
@@ -659,7 +700,12 @@ const path = d3.geoPath(projection, context)
 let previousDrag = null
 
 function filteredStories() {
-  return state.activeRegion === 'all' ? stories : stories.filter((story) => story.region === state.activeRegion)
+  return stories.filter((story) => {
+    const matchesRegion = state.activeRegion === 'all' || story.region === state.activeRegion
+    const matchesType = state.activeType === 'all' || storyKind(story) === state.activeType
+    const matchesQuery = !state.query || searchableText(story).includes(state.query.toLowerCase())
+    return matchesRegion && matchesType && matchesQuery
+  })
 }
 
 function activeStory() {
@@ -679,7 +725,78 @@ function criticalLens(story) {
 }
 
 function regionCount(region) {
-  return region === 'all' ? stories.length : stories.filter((story) => story.region === region).length
+  return stories.filter((story) => {
+    const matchesRegion = region === 'all' || story.region === region
+    const matchesType = state.activeType === 'all' || storyKind(story) === state.activeType
+    const matchesQuery = !state.query || searchableText(story).includes(state.query.toLowerCase())
+    return matchesRegion && matchesType && matchesQuery
+  }).length
+}
+
+function typeCount(type) {
+  return stories.filter((story) => {
+    const matchesRegion = state.activeRegion === 'all' || story.region === state.activeRegion
+    const matchesType = type === 'all' || storyKind(story) === type
+    const matchesQuery = !state.query || searchableText(story).includes(state.query.toLowerCase())
+    return matchesRegion && matchesType && matchesQuery
+  }).length
+}
+
+function searchableText(story) {
+  return [
+    story.year,
+    story.region,
+    story.continent.zh,
+    story.continent.en,
+    story.theme.zh,
+    story.theme.en,
+    story.title.zh,
+    story.title.en,
+    story.subtitle.zh,
+    story.subtitle.en,
+    story.body.zh,
+    story.body.en,
+    ...story.tags.zh,
+    ...story.tags.en,
+  ]
+    .join(' ')
+    .toLowerCase()
+}
+
+function ensureActiveStoryVisible() {
+  const visibleStories = filteredStories()
+  if (visibleStories.length && !visibleStories.some((story) => story.id === state.activeStoryId)) {
+    state.activeStoryId = visibleStories[0].id
+    rotateToStory(visibleStories[0])
+  }
+}
+
+function renderControls() {
+  const locale = copy[state.lang]
+  storySearch.placeholder = locale.searchPlaceholder
+  storySearch.value = state.query
+
+  typeFilters.innerHTML = typeOrder
+    .map((type) => {
+      const label = type === 'all' ? locale.typeAll : storyTypeLabels[type][state.lang]
+      const isActive = type === state.activeType
+      return `
+        <button class="type-button${isActive ? ' is-active' : ''}" type="button" data-type="${type}">
+          <span>${label}</span>
+          <strong>${typeCount(type)}</strong>
+        </button>
+      `
+    })
+    .join('')
+
+  typeFilters.querySelectorAll('.type-button').forEach((button) => {
+    button.addEventListener('click', () => {
+      state.activeType = button.dataset.type
+      ensureActiveStoryVisible()
+      updateText()
+      render()
+    })
+  })
 }
 
 function updateText() {
@@ -689,6 +806,8 @@ function updateText() {
   })
 
   mapStatus.textContent = state.mapFailed ? locale.mapFallback : state.mapReady ? '' : locale.mapLoading
+
+  renderControls()
 
   summaryGrid.innerHTML = [
     [stories.length, locale.cases],
@@ -740,7 +859,8 @@ function renderRegionFilters() {
 
 function renderStoryList() {
   const locale = copy[state.lang]
-  storyItems.innerHTML = filteredStories()
+  const visibleStories = filteredStories()
+  storyItems.innerHTML = visibleStories
     .map((story) => {
       const isActive = story.id === state.activeStoryId
       const typeLabel = storyTypeLabels[storyKind(story)][state.lang]
@@ -764,8 +884,12 @@ function renderStoryList() {
 
   storyItems.insertAdjacentHTML(
     'afterbegin',
-    `<div class="story-count">${locale.shown} <strong>${filteredStories().length}</strong> / ${stories.length}</div>`,
+    `<div class="story-count">${locale.shown} <strong>${visibleStories.length}</strong> / ${stories.length}</div>`,
   )
+
+  if (!visibleStories.length) {
+    storyItems.insertAdjacentHTML('beforeend', `<div class="empty-state">${locale.noResults}</div>`)
+  }
 
   storyItems.querySelectorAll('.story-item').forEach((button) => {
     button.addEventListener('click', () => {
@@ -781,6 +905,8 @@ function renderStoryList() {
 function renderFocusCard() {
   const story = activeStory()
   const typeLabel = storyTypeLabels[storyKind(story)][state.lang]
+  const sourceUrl = sourceLinks[story.id]
+  const sourceText = storyKind(story) === 'pattern' ? copy[state.lang].sourcePattern : copy[state.lang].sourceNamed
   focusContinent.textContent = story.continent[state.lang]
   focusYear.textContent = story.year
   focusTitle.textContent = story.title[state.lang]
@@ -788,6 +914,11 @@ function renderFocusCard() {
   focusSubtitle.textContent = story.subtitle[state.lang]
   focusBody.textContent = story.body[state.lang]
   focusCritical.textContent = criticalLens(story)
+  focusSource.innerHTML = `
+    <span>${copy[state.lang].sourceLabel}</span>
+    <p>${sourceText}</p>
+    ${sourceUrl ? `<a href="${sourceUrl}" target="_blank" rel="noopener noreferrer">${copy[state.lang].sourceLink}</a>` : ''}
+  `
   focusTags.innerHTML = story.tags[state.lang].map((tag) => `<span class="focus-tag">${tag}</span>`).join('')
 }
 
@@ -974,6 +1105,13 @@ langButtons.forEach((button) => {
     state.lang = button.dataset.lang
     updateText()
   })
+})
+
+storySearch.addEventListener('input', () => {
+  state.query = storySearch.value.trim().toLowerCase()
+  ensureActiveStoryVisible()
+  updateText()
+  render()
 })
 
 d3.timer(() => {
